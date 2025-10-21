@@ -167,7 +167,7 @@ git push
 
 **Explanation:**
 - `actions/checkout` pulls repo code.
-- `actions/setup-java` installs **Temurin 17** and enables Maven cache.
+- `actions/setup-java` installs **Temurin 17** (free OpenJDK Distribution) and enables Maven cache.
 - `mvn test` runs Surefire (unit tests).
 
 ### Copy block (YAML)
@@ -197,7 +197,7 @@ jobs:
 
 # Demo 4 — Upload test reports as an artifact
 
-**Goal:** Make Surefire reports downloadable in Actions.
+**Goal:** Make Surefire reports (Maven-Plugin für Unit-Tests) downloadable in Actions.
 
 **Explanation:**
 - `if: always()` ensures reports are uploaded even when tests fail.
