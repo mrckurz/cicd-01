@@ -298,29 +298,6 @@ jobs:
           path: target/surefire-reports
 ```
 
----
-
-# (Optional) Demo 8 — Manual trigger (`workflow_dispatch`)
-
-**Goal:** Start a workflow on demand (e.g., with a debug flag).
-
-### Copy block (YAML)
-```yaml
-on:
-  workflow_dispatch:
-    inputs:
-      debug:
-        type: boolean
-        default: false
-        description: Enable verbose logging
-
-jobs:
-  build-test:
-    runs-on: ubuntu-latest
-    steps:
-      - run: echo "Debug mode: ${{ inputs.debug }}"
-      # ... plus your usual steps (checkout, setup-java, mvn test, artifacts) ...
-```
 
 ---
 
@@ -331,11 +308,3 @@ jobs:
 - **Fork PRs & secrets** — secrets are **not** available to untrusted PRs (by design).
 - **Cache not used** — changed `pom.xml`? Key correct? Consider `restore-keys` fallback.
 - **Slow runs** — enable cache, use path filters, avoid log flooding, use `fail-fast`.
-
----
-
-## Next steps (preview)
-- Enable **Branch Protection & Required Checks** (Settings → Branches).
-- Add **JaCoCo coverage** and upload the HTML report as an artifact.
-- Integrate **SonarCloud** (Quality Gate).
-- Grow the **matrix** (more JDK/OS) or **right-size** it (cost/benefit).
