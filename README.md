@@ -52,6 +52,8 @@ jobs:
 
 ### Copy block (Bash)
 ```bash
+mkdir -p .github/workflows
+echo "foo" >> .github/workflows/ci.yml
 git add .github/workflows/ci.yml
 git commit -m "ci: add minimal hello workflow"
 git push
