@@ -1,7 +1,19 @@
+# .github/workflows/ci.yml
 name: CI
 on: [push, pull_request]
+
 jobs:
-  hello:
+  build-test:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "Hello, CI!"
+      - uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build & Test
+        run: mvn -B -DskipTests=false test
