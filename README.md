@@ -154,7 +154,7 @@ class AppTest {
 mvn -q -DskipTests=false test
 
 # Commit & push
-git add pom.xml src
+git add .
 git commit -m "feat: add minimal Java hello with tests"
 git push
 ```
