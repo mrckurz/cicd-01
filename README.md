@@ -273,7 +273,6 @@ concurrency:
 ### Copy block (YAML — full job)
 ```yaml
 jobs:
-  jobs:
   hello:
     runs-on: ubuntu-latest
     steps:
