@@ -273,7 +273,14 @@ concurrency:
 ### Copy block (YAML — full job)
 ```yaml
 jobs:
+  jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, CI!"
+
   build-test:
+    needs: hello
     name: "Test (${{ matrix.os }} / Java ${{ matrix.java }})"
     strategy:
       fail-fast: true
