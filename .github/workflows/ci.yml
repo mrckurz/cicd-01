@@ -8,6 +8,11 @@ on:
     branches: [ main ]
     paths: [ 'pom.xml', 'src/**' ]
 
+# Add at workflow top-level (or job-level):
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true    
+
 jobs:
   hello:
     runs-on: ubuntu-latest
