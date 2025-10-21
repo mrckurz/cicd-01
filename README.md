@@ -169,6 +169,7 @@ git push
 - `actions/checkout` pulls repo code.
 - `actions/setup-java` installs **Temurin 17** (free OpenJDK Distribution) and enables Maven cache.
 - `mvn test` runs Surefire (unit tests).
+- needs: awaits finishing another job
 
 ### Copy block (YAML)
 ```yaml
@@ -177,7 +178,13 @@ name: CI
 on: [push, pull_request]
 
 jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, CI!"
+  
   build-test:
+    needs: hello
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
