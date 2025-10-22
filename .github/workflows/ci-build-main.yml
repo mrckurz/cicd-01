@@ -1,0 +1,26 @@
+# .github/workflows/ci.yml
+name: CI Build Test Main
+on: [push, pull_request]
+
+jobs:
+  hello:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Hello, CI!"
+  
+  build-test:
+    needs: hello
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cloning Repo, rock'n roll
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build & Test
+        run: mvn -B -DskipTests=false test
