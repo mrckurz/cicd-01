@@ -8,6 +8,7 @@ jobs:
       - run: echo "Hello, CI!"
 
   hello2:
+    needs: hello
     runs-on: ubuntu-latest
     steps:
       - run: echo "Hello, CI! nochmals"
