@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class AppTest {
     @Test void greet_default_whenNameBlank() {
-        assertEquals("Hello, world!!", App.greet(""));
+        assertEquals("Hello, world!", App.greet(""));
     }
     @Test void greet_personalized() {
         assertEquals("Hello, Alice!", App.greet("Alice"));
