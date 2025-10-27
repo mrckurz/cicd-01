@@ -1,7 +1,10 @@
 # CI Demos – GitHub Actions + Java/Maven
 
-This README walks you step by step from a **minimal “Hello CI” workflow** to **matrix builds (OS × Java)**.
+This README walks you step by step from a **minimal “Hello CI” workflow** to **matrix builds (OS × Java)** and **SonarCloud** integration.
 Each step includes **explanations** and **copy‑paste code blocks** (YAML/Bash/Java).
+
+## Hint: 
+- start from empty repo containing only the Readme.md
 
 ## Prerequisites
 - A **GitHub repository** (push access)
