@@ -321,3 +321,137 @@ jobs:
 - **Fork PRs & secrets** — secrets are **not** available to untrusted PRs (by design).
 - **Cache not used** — changed `pom.xml`? Key correct? Consider `restore-keys` fallback.
 - **Slow runs** — enable cache, use path filters, avoid log flooding, use `fail-fast`.
+
+---
+
+# SonarCloud Integration
+
+## Demo 1 — Add JaCoCo coverage locally
+
+**Goal:** produce a coverage report SonarCloud can ingest.
+
+Add to pom.xml (single module):
+
+```xml
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.jacoco</groupId>
+      <artifactId>jacoco-maven-plugin</artifactId>
+      <version>0.8.11</version>
+      <executions>
+        <execution>
+          <goals>
+            <goal>prepare-agent</goal>
+          </goals>
+        </execution>
+        <execution>
+          <id>report</id>
+          <phase>test</phase>
+          <goals>
+            <goal>report</goal>
+          </goals>
+        </execution>
+      </executions>
+    </plugin>
+  </plugins>
+</build>
+
+```
+
+
+### Copy block (Bash)
+Run locally: 
+
+```bash
+mvn -q -DskipTests=false test
+ls -la target/site/jacoco/jacoco.xml   # coverage report
+
+```
+
+
+## Demo 2 — Create SonarCloud project & token
+
+1. In SonarCloud: create org/project (GitHub-linked)
+2. Generate SONAR_TOKEN (user token)
+3. Note organization and projectKey
+4. In GitHub repo → Settings → Secrets and variables → Actions → New repository secret:
+	- SONAR_TOKEN = your token
+	- (optional) SONAR_PROJECT_KEY, SONAR_ORGANIZATION if not using auto-detect
+	- Docs: SonarCloud + GitHub Actions overview & action page.
+
+## Demo 3 — CI job: build, test, coverage, Sonar scan
+
+Add/replace `.github/workflows/ci.yml`:
+
+```yaml
+name: CI
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**', '.github/workflows/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**', '.github/workflows/**' ]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-test-analyze:
+    name: "Build, Test, Analyze"
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Build & Test (with coverage)
+        run: mvn -B -DskipTests=false test
+
+      - name: Upload test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: surefire-reports
+          path: target/surefire-reports
+
+      - name: Upload JaCoCo HTML (optional)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-site
+          path: target/site/jacoco
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v2
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          # explicit params if auto-detect fails:
+          # projectKey: your_org_your_project
+          # organization: your_org
+          args: >
+            -Dsonar.java.binaries=target/classes
+            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+```
+
+**Notes:**
+
+- We pass the JaCoCo XML path explicitly. 
+- We keep least-privilege permissions & add concurrency to avoid duplicate runs.
+- The SonarCloud action & marketplace info are here. 
+- Artifact notes & v4 details here. 
+
+
+## Demo 4 — Break & fix (hands-on narrative)
+- **Break:** add a nested if/else chain to push **cognitive complexity** over the rule threshold; commit; watch PR fail.
+- **Fix:** refactor into small methods; complexity drops; gate passes. (Explain what “Cognitive Complexity” penalizes.)
