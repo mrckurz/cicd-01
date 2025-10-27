@@ -443,8 +443,11 @@ jobs:
           # projectKey: your_org_your_project
           # organization: your_org
           args: >
-            -Dsonar.java.binaries=target/classes
-            -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+	         -Dsonar.projectKey=<projectkey> # mrckurz_cicd-01
+             -Dsonar.organization=<organization> # mrckurz
+             -Dsonar.branch.name=main  
+             -Dsonar.java.binaries=target/classes
+             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 ```
 
 **Notes:**
