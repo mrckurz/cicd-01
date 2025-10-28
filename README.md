@@ -443,7 +443,7 @@ jobs:
           # projectKey: your_org_your_project
           # organization: your_org
           args: >
-	         -Dsonar.projectKey=<projectkey> # mrckurz_cicd-01
+	           -Dsonar.projectKey=<projectkey> # mrckurz_cicd-01
              -Dsonar.organization=<organization> # mrckurz
              -Dsonar.branch.name=main  
              -Dsonar.java.binaries=target/classes
