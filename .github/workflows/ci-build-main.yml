@@ -51,7 +51,7 @@ jobs:
         with:
           # explicit params if auto-detect fails:
           # projectKey: your_org_your_project
-          # organization: your_org
+          # organization: your_org 
           args: >
              -Dsonar.projectKey=mrckurz_cicd-01
              -Dsonar.organization=mrckurz
