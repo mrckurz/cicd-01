@@ -12,7 +12,7 @@ jobs:
     needs: hello
     runs-on: ubuntu-latest
     steps:
-      - name: Cloning Repo, rock'n roll
+      - name: Cloning Repo
         uses: actions/checkout@v4
 
       - name: Set up Java
