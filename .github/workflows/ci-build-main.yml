@@ -1,6 +1,12 @@
 # .github/workflows/ci.yml
 name: CI Build Test Main
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**' ]
 
 jobs:
   hello:
