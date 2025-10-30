@@ -502,3 +502,31 @@ target/
 ```
 
 **Why?** smaller context → faster builds; no secrets/garbage in the image layers.
+
+### 2) Create a multi-stage `Dockerfile` (repo root)
+This produces a small runtime image and keeps build tools out of production:
+
+```Dockerfile
+# ===== STAGE 1: Build =====
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+# run tests and produce a JAR (change the -D... if your module name differs)
+RUN mvn -B -DskipTests=false package
+
+# ===== STAGE 2: Runtime =====
+FROM eclipse-temurin:17-jre
+WORKDIR /app
+# copy only the built JAR from the build stage (update name if different)
+COPY --from=build /app/target/*-SNAPSHOT.jar /app/app.jar
+# non-root (optional):
+# RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
+# USER appuser
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","/app/app.jar"]
+```
+
+**Notes:**
+- If your artifact name isn’t *-SNAPSHOT.jar, replace the COPY pattern accordingly (e.g., /app/target/myapp.jar).
+- If your app listens on a different port, change EXPOSE and your run command accordingly.
