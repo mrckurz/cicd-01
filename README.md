@@ -617,3 +617,21 @@ jobs:
 - You can download and load it locally with docker load -i image-<shortSHA>.tar.
 
 Tip: Keep the Docker job separate from your Maven test job to isolate failures and keep logs focused.
+
+## Demo 03: Badges (README)
+
+Add badges near the top of your project `README.md`:
+
+```md
+![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)
+![Docker Image](https://github.com/<owner>/<repo>/actions/workflows/docker.yml/badge.svg)
+```
+
+Replace `<owner>/<repo>` with your values.
+
+## Troubleshooting
+- **Image tar not downloadable?** Check the artifact name in the run summary; ensure the artifact step didn’t get skipped.
+- **Buildx error on load**: true: Ensure you specify a single platform (e.g., linux/amd64) when using load.
+- **JAR not found at COPY**: Confirm the exact JAR name in target/ and update the COPY pattern.
+- **Port issues**: Confirm the app’s listening port; change EXPOSE and docker run -p mapping accordingly.
+- **Large artifacts**: Consider keeping retention short (e.g., 7 days) and avoid embedding dependencies in the runtime image.
