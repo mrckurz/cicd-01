@@ -550,3 +550,70 @@ docker images | head                 # list images
 docker history local/app:dev         # see layers
 docker stop app-demo                 # stop container
 ```
+
+
+
+## Demo 02: Build Image & Upload as Artifact (tagged with SHA)
+Create `.github/workflows/docker.yml`:
+
+```yaml
+name: Docker Image (Artifact)
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'Dockerfile', '.dockerignore', 'pom.xml', 'src/**', '.github/workflows/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'Dockerfile', '.dockerignore', 'pom.xml', 'src/**', '.github/workflows/**' ]
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build-artifact:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up JDK (warm up Maven cache for build stage)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Compute short SHA
+        id: vars
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      # Build single-platform image and load into the Docker engine (required for docker save)
+      - name: Build (load to engine)
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: local/app:${{ steps.vars.outputs.short_sha }}
+
+      # Save the image to a tarball named with the commit SHA
+      - name: Save image as artifact tar
+        run: docker save -o image-${{ steps.vars.outputs.short_sha }}.tar local/app:${{ steps.vars.outputs.short_sha }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-image-${{ steps.vars.outputs.short_sha }}
+          path: image-${{ steps.vars.outputs.short_sha }}.tar
+          retention-days: 7
+```
+
+**What this does**
+- Builds the Docker image from your Dockerfile for linux/amd64 and loads it into the job’s Docker engine.
+- Exports the image as image-<shortSHA>.tar and uploads it as a workflow artifact.
+- You can download and load it locally with docker load -i image-<shortSHA>.tar.
+
+Tip: Keep the Docker job separate from your Maven test job to isolate failures and keep logs focused.
