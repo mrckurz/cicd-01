@@ -1,6 +1,6 @@
 # CI Demos – GitHub Actions + Java/Maven
 
-This repository is the entrypoint for the lecture "**Continous Integration / Continous Delivery**" in the Mobile COmputing Bachelors degree by FH-Prof. Dr. Marc Kurz. The readme contains all necessary information for a step-by-step construction of a CI pipeline.
+This repository is the entrypoint for the lecture "**Continous Integration / Continous Delivery**" in the **Mobile Computing** Bachelors degree by **FH-Prof. Dr. Marc Kurz**. The README contains all necessary information for a step-by-step construction of a CI pipeline.
 
 This README walks you step by step from a **minimal “Hello CI” workflow** to **matrix builds (OS × Java)** and **SonarCloud** integration.
 Each step includes **explanations** and **copy‑paste code blocks** (YAML/Bash/Java).
