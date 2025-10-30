@@ -30,7 +30,7 @@ Each step includes **explanations** and **copy‑paste code blocks** (YAML/Bash/
 
 ---
 
-# Demo 1 — Minimal “Hello CI” workflow
+# LVA-Lecture 02: Demo 1 — Minimal “Hello CI” workflow
 
 **Goal:** A first run that prints “Hello, CI!”.
 
@@ -329,7 +329,7 @@ jobs:
 
 ---
 
-# SonarCloud Integration
+# LVA-Lecture 03: SonarCloud Integration
 
 ## Demo 1 — Add JaCoCo coverage locally
 
