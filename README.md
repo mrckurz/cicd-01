@@ -464,3 +464,41 @@ jobs:
 ## Demo 4 — Break & fix (hands-on narrative)
 - **Break:** add a nested if/else chain to push **cognitive complexity** over the rule threshold; commit; watch PR fail.
 - **Fix:** refactor into small methods; complexity drops; gate passes. (Explain what “Cognitive Complexity” penalizes.)
+
+---
+
+# LVA-Lecture 04: Docker Containerization
+
+## Goals
+- Build a **Docker image** for the existing Java app (multi-stage).
+- Run the container locally and verify behavior.
+- In CI: **build the image** and **upload it as an artifact named with the commit SHA** (no registry push).
+- Add **badges** to the README.
+
+---
+
+## Prerequisites
+- Working **Java/Maven** project from earlier IL/UE (tests pass locally).
+- Docker Desktop or Docker Engine (CLI available).
+- GitHub repo with Actions enabled.
+
+---
+
+## Demo 01 — Local Containerization
+
+### 1) Add `.dockerignore` (repo root)
+Create a `.dockerignore` file to keep the build context small:
+```gitignore
+# build output
+target/
+# VCS / IDE
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+# OS files
+.DS_Store
+```
+
+**Why?** smaller context → faster builds; no secrets/garbage in the image layers.
