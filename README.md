@@ -530,3 +530,23 @@ ENTRYPOINT ["java","-jar","/app/app.jar"]
 **Notes:**
 - If your artifact name isn’t *-SNAPSHOT.jar, replace the COPY pattern accordingly (e.g., /app/target/myapp.jar).
 - If your app listens on a different port, change EXPOSE and your run command accordingly.
+
+### 3) Build & run locally
+```bash
+# 1) build (local development tag)
+docker build -t local/app:dev .
+
+# 2) run it (map host port to container port if your app exposes 8080)
+docker run --rm -p 8080:8080 --name app-demo local/app:dev
+
+# In another terminal, test your endpoint (adapt path as needed)
+curl -v http://localhost:8080/
+```
+
+Useful checks:
+```bash
+docker logs -f app-demo              # live logs
+docker images | head                 # list images
+docker history local/app:dev         # see layers
+docker stop app-demo                 # stop container
+```
