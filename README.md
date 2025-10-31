@@ -625,6 +625,26 @@ jobs:
 
 Tip: Keep the Docker job separate from your Maven test job to isolate failures and keep logs focused.
 
+## Demo 04: Download image and start
+**Note**: for MacOs
+
+Download the image from the Build Summary as zip-Archive.
+```bash
+# 1) ZIP entpacken (legt z. B. image-8a3a49b.tar ab)
+unzip docker-image-<SHA>.zip -d extracted
+ls -la extracted
+
+# 2) Docker-Image laden
+docker load -i extracted/image-<SHA>.tar
+
+# 3) prüfen
+docker images | head
+
+# 4) starten (reiner Console-Output)
+docker run --rm --name app-demo local/app:<SHA>
+```
+
+
 ## Demo 03: Badges (README)
 
 Add badges near the top of your project `README.md`:
