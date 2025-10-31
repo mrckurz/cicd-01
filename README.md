@@ -503,7 +503,44 @@ target/
 
 **Why?** smaller context → faster builds; no secrets/garbage in the image layers.
 
-### 2) Create a multi-stage `Dockerfile` (repo root)
+### 2) Expand pom.xml
+
+Add a new plugin to the pom.xml:
+```xml
+<plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.5.0</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals><goal>shade</goal></goals>
+            <configuration>
+              <transformers>
+                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                  <mainClass>com.example.hello.App</mainClass>
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+```
+
+**Note**: this snippet activates the Maven Shade Plugin that builds on `mvn package` an executable *.jar containing code and all dependencies.
+
+- in `target/` a JAR is created (per default with he suffix  `-shaded.jar`).
+- to execute: `java -jar target/<artifactId>-<version>-shaded.jar``
+- to be used easy in the `Dockerfile`:
+
+```Dockerfile
+COPY --from=build /app/target/*-shaded.jar /app/app.jar
+ENTRYPOINT ["java","-jar","/app/app.jar"]
+```
+
+Im Dockerfile kannst du dann einfach:
+
+### 3) Create a multi-stage `Dockerfile` (repo root)
 This produces a small runtime image and keeps build tools out of production:
 
 ```Dockerfile
