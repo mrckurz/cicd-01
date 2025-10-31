@@ -554,7 +554,7 @@ RUN mvn -B -DskipTests=false package && ls -la target
 # ===== STAGE 2: Runtime =====
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-# Kopiere "irgendein" erzeugtes JAR aus target nach /app/app.jar
+# Kopiere das erzeugte JAR aus target nach /app/app.jar
 COPY --from=build /app/target/*.jar /app/app.jar
 # Wenn kein Main-Manifest vorhanden ist: starte per FQCN (deine Main-Klasse)
 ENTRYPOINT ["java","-cp","/app/app.jar","com.example.hello.App"]
@@ -570,13 +570,13 @@ ENTRYPOINT ["java","-cp","/app/app.jar","com.example.hello.App"]
 ### 3) Build & run locally
 ```bash
 # 1) build (local development tag)
-docker build -t local/app:dev .
+docker build --no-cache -t local/app:dev .
 
 # 2) run it (map host port to container port if your app exposes 8080)
 docker run --rm -p 8080:8080 --name app-demo local/app:dev
 
-# In another terminal, test your endpoint (adapt path as needed)
-curl -v http://localhost:8080/
+# oder
+docker run --rm --name app-demo local/app:dev   
 ```
 
 Useful checks:
