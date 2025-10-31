@@ -548,19 +548,19 @@ FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
 COPY src ./src
-# run tests and produce a JAR (change the -D... if your module name differs)
-RUN mvn -B -DskipTests=false package
+# Baue und liste aus, damit wir sehen, was im target/ liegt
+RUN mvn -B -DskipTests=false package && ls -la target
 
 # ===== STAGE 2: Runtime =====
 FROM eclipse-temurin:17-jre
 WORKDIR /app
-# copy only the built JAR from the build stage (update name if different)
-COPY --from=build /app/target/*-SNAPSHOT.jar /app/app.jar
-# non-root (optional):
-# RUN useradd -ms /bin/bash appuser && chown -R appuser:appuser /app
-# USER appuser
-EXPOSE 8080
-ENTRYPOINT ["java","-jar","/app/app.jar"]
+# Kopiere "irgendein" erzeugtes JAR aus target nach /app/app.jar
+COPY --from=build /app/target/*.jar /app/app.jar
+# Wenn kein Main-Manifest vorhanden ist: starte per FQCN (deine Main-Klasse)
+ENTRYPOINT ["java","-cp","/app/app.jar","com.example.hello.App"]
+# Falls deine App ein HTTP-Server ist, öffne den Port:
+# EXPOSE 8080
+
 ```
 
 **Notes:**
