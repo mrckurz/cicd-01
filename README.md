@@ -625,7 +625,7 @@ jobs:
 
 Tip: Keep the Docker job separate from your Maven test job to isolate failures and keep logs focused.
 
-## Demo 04: Download image and start
+## Demo 03: Download image and start
 **Note**: for MacOs
 
 Download the image from the Build Summary as zip-Archive.
@@ -645,7 +645,7 @@ docker run --rm --name app-demo local/app:<SHA>
 ```
 
 
-## Demo 03: Badges (README)
+## Demo 04: Badges (README)
 
 Add badges near the top of your project `README.md`:
 
@@ -653,8 +653,12 @@ Add badges near the top of your project `README.md`:
 ![CI](https://github.com/<owner>/<repo>/actions/workflows/ci.yml/badge.svg)
 ![Docker Image](https://github.com/<owner>/<repo>/actions/workflows/docker.yml/badge.svg)
 ```
+**Note**: Replace `<owner>/<repo>` with your values.
 
-Replace `<owner>/<repo>` with your values.
+![CI](https://github.com/mrckurz/cicd-01/actions/workflows/ci.yml/badge.svg)
+![Docker Image](https://github.com/mrckurz/cicd-01/actions/workflows/docker.yml/badge.svg)
+
+
 
 ## Troubleshooting
 - **Image tar not downloadable?** Check the artifact name in the run summary; ensure the artifact step didn’t get skipped.
