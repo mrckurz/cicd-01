@@ -503,64 +503,33 @@ target/
 
 **Why?** smaller context → faster builds; no secrets/garbage in the image layers.
 
-### 2) Expand pom.xml
-
-Add a new plugin to the pom.xml:
-```xml
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-shade-plugin</artifactId>
-        <version>3.5.0</version>
-        <executions>
-          <execution>
-            <phase>package</phase>
-            <goals><goal>shade</goal></goals>
-            <configuration>
-              <transformers>
-                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                  <mainClass>com.example.hello.App</mainClass>
-                </transformer>
-              </transformers>
-            </configuration>
-          </execution>
-        </executions>
-      </plugin>
-```
-
-**Note**: this snippet activates the Maven Shade Plugin that builds on `mvn package` an executable `*.jar` containing code and all dependencies.
-
-- in `target/` a JAR is created (per default with he suffix  `-shaded.jar`).
-- to execute: `java -jar target/<artifactId>-<version>-shaded.jar`
-- to be used easy in the `Dockerfile`:
-
-```Dockerfile
-COPY --from=build /app/target/*-shaded.jar /app/app.jar
-ENTRYPOINT ["java","-jar","/app/app.jar"]
-```
-
-
-### 3) Create a multi-stage `Dockerfile` (repo root)
+### 2) Create a multi-stage `Dockerfile` (repo root)
 This produces a small runtime image and keeps build tools out of production:
 
 ```Dockerfile
 # ===== STAGE 1: Build =====
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
+
 COPY pom.xml .
 COPY src ./src
-# Baue und liste aus, damit wir sehen, was im target/ liegt
+
+# Baue und liste auf, damit wir sehen, was im target/ liegt
 RUN mvn -B -DskipTests=false package && ls -la target
+
 
 # ===== STAGE 2: Runtime =====
 FROM eclipse-temurin:17-jre
 WORKDIR /app
+
 # Kopiere das erzeugte JAR aus target nach /app/app.jar
 COPY --from=build /app/target/*.jar /app/app.jar
-# Wenn kein Main-Manifest vorhanden ist: starte per FQCN (deine Main-Klasse)
+
+# Wenn kein Main-Manifest vorhanden ist: starte per FQCN - fully qualified name (deine Main-Klasse)
 ENTRYPOINT ["java","-cp","/app/app.jar","com.example.hello.App"]
+
 # Falls deine App ein HTTP-Server ist, öffne den Port:
 # EXPOSE 8080
-
 ```
 
 **Notes:**
@@ -573,10 +542,12 @@ ENTRYPOINT ["java","-cp","/app/app.jar","com.example.hello.App"]
 docker build --no-cache -t local/app:dev .
 
 # 2) run it (map host port to container port if your app exposes 8080)
-docker run --rm -p 8080:8080 --name app-demo local/app:dev
-
-# oder
 docker run --rm --name app-demo local/app:dev   
+```
+
+To inspect the runtime image:
+```bash
+docker run --rm -it --entrypoint sh local/app:dev -lc 'ls -la /app'
 ```
 
 Useful checks:
