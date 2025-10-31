@@ -507,7 +507,7 @@ target/
 
 Add a new plugin to the pom.xml:
 ```xml
-<plugin>
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <version>3.5.0</version>
@@ -527,10 +527,10 @@ Add a new plugin to the pom.xml:
       </plugin>
 ```
 
-**Note**: this snippet activates the Maven Shade Plugin that builds on `mvn package` an executable *.jar containing code and all dependencies.
+**Note**: this snippet activates the Maven Shade Plugin that builds on `mvn package` an executable `*.jar` containing code and all dependencies.
 
 - in `target/` a JAR is created (per default with he suffix  `-shaded.jar`).
-- to execute: `java -jar target/<artifactId>-<version>-shaded.jar``
+- to execute: `java -jar target/<artifactId>-<version>-shaded.jar`
 - to be used easy in the `Dockerfile`:
 
 ```Dockerfile
@@ -538,7 +538,6 @@ COPY --from=build /app/target/*-shaded.jar /app/app.jar
 ENTRYPOINT ["java","-jar","/app/app.jar"]
 ```
 
-Im Dockerfile kannst du dann einfach:
 
 ### 3) Create a multi-stage `Dockerfile` (repo root)
 This produces a small runtime image and keeps build tools out of production:
