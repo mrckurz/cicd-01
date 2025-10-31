@@ -655,7 +655,8 @@ Add badges near the top of your project `README.md`:
 ```
 **Note**: Replace `<owner>/<repo>` with your values.
 
-![CI](https://github.com/mrckurz/cicd-01/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/mrckurz/cicd-01/actions/workflows/ci-build-main.yml/badge.svg)
+
 ![Docker Image](https://github.com/mrckurz/cicd-01/actions/workflows/docker.yml/badge.svg)
 
 
