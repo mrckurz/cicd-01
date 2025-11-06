@@ -1,0 +1,10 @@
+# build output
+target/
+# VCS / IDE
+.git/
+.gitignore
+.github/
+.idea/
+.vscode/
+# OS files
+.DS_Store
