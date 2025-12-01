@@ -13,12 +13,6 @@
     <junit.jupiter.version>5.10.2</junit.jupiter.version>
   </properties>
   <dependencies>
-    <!-- absichtlich verwundbare Version, nur zu Demo-Zwecken -->
-    <dependency>
-        <groupId>org.apache.logging.log4j</groupId>
-        <artifactId>log4j-core</artifactId>
-        <version>2.14.1</version>
-    </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
