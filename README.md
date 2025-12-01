@@ -660,6 +660,64 @@ Add badges near the top of your project `README.md`:
 ![Docker Image](https://github.com/mrckurz/cicd-01/actions/workflows/docker.yml/badge.svg)
 
 
+# LVA-Lecture 06: Vulnerability Scanning
+
+## Goals
+- Scan the IaC Files and Images/Containers for Security issues and CVEs.
+- Build the scans in the pipeline
+
+---
+
+## Demo 01 — Local Scanning
+
+### 1) Scanning with trivy and grype
+```bash
+# build the image
+docker build --no-cache -t local/app:dev .
+
+# scan the image with trivy
+trivy image local/app:dev
+trivy config .
+
+# Scan with grype
+grype docker:local/app:dev
+```
+
+## Demo 02 — Pipeline Scanning
+- add the following to the pipeline:
+
+```yaml
+Vulnerability_Scan:
+    runs-on: ubuntu-latest
+    needs: docker-build-artifact
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: docker-image-${{ needs.docker-build-artifact.outputs.short_sha }}
+
+      - name: Load docker image from artifact
+        run: docker load -i image-${{ needs.docker-build-artifact.outputs.short_sha }}.tar
+
+      - name: Scan Docker Image
+        uses: aquasecurity/trivy-action@0.33.1
+        continue-on-error: true
+        with:
+          image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
+          severity: CRITICAL,HIGH
+          exit-code: 1
+
+      - name: Scan IaC
+        uses: aquasecurity/trivy-action@0.33.1
+        continue-on-error: true
+        with:
+          scan-type: 'config'
+          severity: 'CRITICAL,HIGH'
+          exit-code: 0
+
+```
+
+
 
 ## Troubleshooting
 - **Image tar not downloadable?** Check the artifact name in the run summary; ensure the artifact step didn’t get skipped.
