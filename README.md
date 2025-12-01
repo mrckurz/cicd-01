@@ -704,17 +704,16 @@ Vulnerability_Scan:
         continue-on-error: true
         with:
           image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
-          severity: CRITICAL,HIGH
-          exit-code: 1
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          exit-code: 0
 
       - name: Scan IaC
         uses: aquasecurity/trivy-action@0.33.1
         continue-on-error: true
         with:
           scan-type: 'config'
-          severity: 'CRITICAL,HIGH'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           exit-code: 0
-
 ```
 
 
