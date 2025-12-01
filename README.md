@@ -707,6 +707,23 @@ Vulnerability_Scan:
           severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
           exit-code: 0
 
+      - name: Trivy Image Scan (JSON Report)
+        uses: aquasecurity/trivy-action@0.33.1
+        with:
+          image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
+          vuln-type: 'os,library'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          format: 'json'                    # <-- wichtig
+          output: 'trivy-image-report.json' # <-- wird im Workspace erzeugt
+          exit-code: 0                     
+
+      - name: Upload Trivy JSON Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-image-report
+          path: trivy-image-report.json
+          retention-days: 7
+
       - name: Scan IaC
         uses: aquasecurity/trivy-action@0.33.1
         continue-on-error: true
