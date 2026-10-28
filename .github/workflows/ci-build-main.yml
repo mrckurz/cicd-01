@@ -10,6 +10,10 @@ on:
           # NOTE: on this demo branch the push filter does not match -> start manually: Actions -> CI -> Run workflow
   workflow_dispatch:
 
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   hello:
     runs-on: ubuntu-latest
