@@ -1,0 +1,54 @@
+name: Docker Image (Artifact)
+
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'Dockerfile', '.dockerignore', 'pom.xml', 'src/**', '.github/workflows/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'Dockerfile', '.dockerignore', 'pom.xml', 'src/**', '.github/workflows/**' ]
+          # NOTE: on this demo branch the push filter does not match -> start manually: Actions -> Docker Image (Artifact) -> Run workflow
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  docker-build-artifact:
+    runs-on: ubuntu-latest
+    outputs:
+      short_sha: ${{ steps.vars.outputs.short_sha }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Set up JDK (warm up Maven cache for build stage)
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Compute short SHA
+        id: vars
+        run: echo "short_sha=${GITHUB_SHA::7}" >> $GITHUB_OUTPUT
+
+      - name: Build (load to engine)
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64
+          load: true
+          tags: local/app:${{ steps.vars.outputs.short_sha }}
+
+      - name: Save image as artifact tar
+        run: docker save -o image-${{ steps.vars.outputs.short_sha }}.tar local/app:${{ steps.vars.outputs.short_sha }}
+
+      - name: Upload image artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: docker-image-${{ steps.vars.outputs.short_sha }}
+          path: image-${{ steps.vars.outputs.short_sha }}.tar
+          retention-days: 7
