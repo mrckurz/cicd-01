@@ -7,6 +7,7 @@ on:
   pull_request:
     branches: [ main ]
     paths: [ 'Dockerfile', '.dockerignore', 'pom.xml', 'src/**', '.github/workflows/**' ]
+  workflow_dispatch:   # manual start (Actions -> Docker Image (Artifact) -> Run workflow), needed for the lecture-*/demo-* branches
 
 permissions:
   contents: read

@@ -6,6 +6,7 @@ on:
   pull_request:
     branches: [ main ]
     paths: [ 'pom.xml', 'src/**', '.github/workflows/**' ]
+  workflow_dispatch:   # manual start (Actions -> CI -> Run workflow), needed for the lecture-*/demo-* branches
 
 permissions:
   contents: read
