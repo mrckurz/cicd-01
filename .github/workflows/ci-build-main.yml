@@ -19,9 +19,9 @@ jobs:
     name: "Build, Test, Analyze"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -32,29 +32,24 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports
           path: target/surefire-reports
 
       - name: Upload JaCoCo HTML (optional)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-site
           path: target/site/jacoco
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
+      - name: SonarQube Cloud Scan (Maven scanner)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          # explicit params if auto-detect fails:
-          # projectKey: your_org_your_project
-          # organization: your_org 
-          args: >
-             -Dsonar.projectKey=mrckurz_cicd-01
-             -Dsonar.organization=mrckurz
-             -Dsonar.branch.name=main  
-             -Dsonar.java.binaries=target/classes
-             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.projectKey=mrckurz_cicd-01
+          -Dsonar.organization=mrckurz
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml

@@ -12,8 +12,8 @@ Each step includes **explanations** and **copy‑paste code blocks** (YAML/Bash/
 ## Prerequisites
 - A **GitHub repository** (push access)
 - **Git** locally
-- **Java 17** (JDK) — `java -version`
-- **Maven** — `mvn -v`
+- **Java 17 or newer** (JDK) — `java -version`
+- **Maven 3.9 or newer** — `mvn -v`
 - Optional: an editor like VS Code or IntelliJ
 
 ---
@@ -41,7 +41,7 @@ Each step includes **explanations** and **copy‑paste code blocks** (YAML/Bash/
 
 ### Instructions
 1) Create folder `.github/workflows/`  
-2) Create `ci.yml` and paste the content below  
+2) Create `ci.yml` and paste the content below (in this repo the file is called `ci-build-main.yml`)  
 3) Commit & push → **Actions** tab → open the run
 
 ### Copy block (YAML)
@@ -59,7 +59,7 @@ jobs:
 ### Copy block (Bash)
 ```bash
 mkdir -p .github/workflows
-echo "foo" >> .github/workflows/ci.yml
+# create .github/workflows/ci.yml with the YAML content above (editor of your choice)
 git add .github/workflows/ci.yml
 git commit -m "ci: add minimal hello workflow"
 git push
@@ -193,10 +193,10 @@ jobs:
     needs: hello
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -220,7 +220,7 @@ jobs:
 ```yaml
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports
           path: target/surefire-reports
@@ -298,9 +298,9 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: ${{ matrix.java }}
@@ -311,7 +311,7 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-${{ matrix.os }}-java${{ matrix.java }}
           path: target/surefire-reports
@@ -324,6 +324,8 @@ jobs:
 
 - **“No tests found”** — check test class names (`*Test.java`), JUnit deps in `pom.xml`, and that you’re at the project root.
 - **JDK mismatch** — ensure `setup-java` version matches the project (here **17**).
+- **Node.js warnings** — GitHub removed Node 20 from the runners in September 2026. Old action versions (e.g. `actions/checkout@v4`) still run but show a warning; use current major versions (`checkout@v7`, `setup-java@v6`, `upload-artifact@v7`).
+- **`ubuntu-latest` changes** — the label moves from Ubuntu 24.04 to 26.04 between 19 Oct and 19 Nov 2026. Pin `ubuntu-24.04` if you need a stable image.
 - **Fork PRs & secrets** — secrets are **not** available to untrusted PRs (by design).
 - **Cache not used** — changed `pom.xml`? Key correct? Consider `restore-keys` fallback.
 - **Slow runs** — enable cache, use path filters, avoid log flooding, use `fail-fast`.
@@ -376,7 +378,7 @@ ls -la target/site/jacoco/jacoco.xml   # coverage report
 ```
 
 
-## Demo 2 — Create SonarCloud project & token
+## Demo 2 — Create SonarQube Cloud (formerly SonarCloud) project & token
 
 1. In SonarCloud: create org/project (GitHub-linked)
 2. Generate SONAR_TOKEN (user token)
@@ -412,9 +414,9 @@ jobs:
     name: "Build, Test, Analyze"
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
@@ -425,39 +427,35 @@ jobs:
 
       - name: Upload test reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: surefire-reports
           path: target/surefire-reports
 
       - name: Upload JaCoCo HTML (optional)
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: jacoco-site
           path: target/site/jacoco
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@v2
+      - name: SonarQube Cloud Scan (Maven scanner)
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          # explicit params if auto-detect fails:
-          # projectKey: your_org_your_project
-          # organization: your_org
-          args: >
-             -Dsonar.projectKey=<projectkey> # mrckurz_cicd-01
-             -Dsonar.organization=<organization> # mrckurz
-             -Dsonar.branch.name=main  
-             -Dsonar.java.binaries=target/classes
-             -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+        run: >
+          mvn -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+          -Dsonar.projectKey=<projectkey>
+          -Dsonar.organization=<organization>
+          -Dsonar.host.url=https://sonarcloud.io
+          -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
 ```
 
 **Notes:**
 
+- Replace `<projectkey>` and `<organization>` with your values (e.g. `mrckurz_cicd-01` and `mrckurz`). Do not put `#` comments inside the `run: >` block, the shell would treat the rest of the line as a comment.
 - We pass the JaCoCo XML path explicitly. 
 - We keep least-privilege permissions & add concurrency to avoid duplicate runs.
-- The SonarCloud action & marketplace info are here. 
+- For Maven projects SonarSource recommends the **SonarScanner for Maven** (as above) instead of the GitHub Action. The former `SonarSource/sonarcloud-github-action` is deprecated; its successor is `SonarSource/sonarqube-scan-action`. SonarCloud is now called **SonarQube Cloud**. 
 - Artifact notes & v4 details here. 
 
 
@@ -581,17 +579,17 @@ jobs:
   docker-build-artifact:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
       - name: Set up JDK (warm up Maven cache for build stage)
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Compute short SHA
         id: vars
@@ -599,7 +597,7 @@ jobs:
 
       # Build single-platform image and load into the Docker engine (required for docker save)
       - name: Build (load to engine)
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           platforms: linux/amd64
@@ -611,7 +609,7 @@ jobs:
         run: docker save -o image-${{ steps.vars.outputs.short_sha }}.tar local/app:${{ steps.vars.outputs.short_sha }}
 
       - name: Upload image artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: docker-image-${{ steps.vars.outputs.short_sha }}
           path: image-${{ steps.vars.outputs.short_sha }}.tar
@@ -692,7 +690,7 @@ Vulnerability_Scan:
     needs: docker-build-artifact
     steps:
       - name: Download image artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: docker-image-${{ needs.docker-build-artifact.outputs.short_sha }}
 
@@ -700,7 +698,7 @@ Vulnerability_Scan:
         run: docker load -i image-${{ needs.docker-build-artifact.outputs.short_sha }}.tar
 
       - name: Scan Docker Image
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         continue-on-error: true
         with:
           image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
@@ -708,7 +706,7 @@ Vulnerability_Scan:
           exit-code: 0
 
       - name: Trivy Image Scan (JSON Report)
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
           vuln-type: 'os,library'
@@ -718,14 +716,14 @@ Vulnerability_Scan:
           exit-code: 0                     
 
       - name: Upload Trivy JSON Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: trivy-image-report
           path: trivy-image-report.json
           retention-days: 7
 
       - name: Scan IaC
-        uses: aquasecurity/trivy-action@0.33.1
+        uses: aquasecurity/trivy-action@v0.36.0
         continue-on-error: true
         with:
           scan-type: 'config'
