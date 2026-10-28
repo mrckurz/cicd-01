@@ -1,6 +1,14 @@
 # .github/workflows/ci.yml
 name: CI
-on: [push, pull_request]
+on:
+  push:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**' ]
+  pull_request:
+    branches: [ main ]
+    paths: [ 'pom.xml', 'src/**' ]
+          # NOTE: on this demo branch the push filter does not match -> start manually: Actions -> CI -> Run workflow
+  workflow_dispatch:
 
 jobs:
   hello:
