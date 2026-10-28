@@ -52,3 +52,48 @@ jobs:
           name: docker-image-${{ steps.vars.outputs.short_sha }}
           path: image-${{ steps.vars.outputs.short_sha }}.tar
           retention-days: 7
+
+  Vulnerability_Scan:
+    runs-on: ubuntu-latest
+    needs: docker-build-artifact
+    steps:
+      - name: Download image artifact
+        uses: actions/download-artifact@v8
+        with:
+          name: docker-image-${{ needs.docker-build-artifact.outputs.short_sha }}
+
+      - name: Load docker image from artifact
+        run: docker load -i image-${{ needs.docker-build-artifact.outputs.short_sha }}.tar
+
+      - name: Scan Docker Image
+        uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
+        with:
+          image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          exit-code: 0
+
+      - name: Trivy Image Scan (JSON Report)
+        uses: aquasecurity/trivy-action@v0.36.0
+        with:
+          image-ref: local/app:${{ needs.docker-build-artifact.outputs.short_sha }}
+          vuln-type: 'os,library'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          format: 'json'                    # <-- wichtig
+          output: 'trivy-image-report.json' # <-- wird im Workspace erzeugt
+          exit-code: 0                     
+
+      - name: Upload Trivy JSON Report
+        uses: actions/upload-artifact@v7
+        with:
+          name: trivy-image-report
+          path: trivy-image-report.json
+          retention-days: 7
+
+      - name: Scan IaC
+        uses: aquasecurity/trivy-action@v0.36.0
+        continue-on-error: true
+        with:
+          scan-type: 'config'
+          severity: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+          exit-code: 0
